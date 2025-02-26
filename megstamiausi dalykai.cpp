@@ -1,83 +1,60 @@
 #include <bits/stdc++.h>
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <algorithm>
-
-struct Student {
-    std::string name, subject;
-    int gradeCount;
-    std::vector<int> grades;
+struct dalykas{
+    std::string pav;
+    std::vector<std::string>mokiniai;
+    std::vector<int>paz;
 };
 
-struct SubjectInfo {
-    std::string subject;
-    std::vector<std::string> students;
-    int count = 0;
-};
-
-bool compareSubjects(const SubjectInfo &a, const SubjectInfo &b) {
-    if (a.count == b.count) return a.subject < b.subject;
-    return a.count > b.count;
-}
-
-int main() {
-    std::ifstream fin("U2.txt");
-    std::ofstream fout("U2rez.txt");
+int main()
+{
+    std::ifstream fd("U1.txt");
+    std::ofstream fr("U1rez.txt");
+    int n;
+    fd >> n;
     
-    int m;
-    fin >> m;
+    std::vector<dalykas> a(n);
     
-    std::vector<Student> students(m);
-    for (int i = 0; i < m; i++) {
-        fin >> students[i].name >> students[i].subject >> students[i].gradeCount;
-        students[i].grades.resize(students[i].gradeCount);
-        for (int j = 0; j < students[i].gradeCount; j++) {
-            fin >> students[i].grades[j];
-        }
-    }
-    
-    std::vector<SubjectInfo> subjects;
-    
-    for (int i = 0; i < students.size(); i++) {
-        double sum = 0;
-        for (int j = 0; j < students[i].grades.size(); j++) {
-            sum += students[i].grades[j];
-        }
-        double avg = sum / students[i].gradeCount;
+    for(int i=0; i<n; i++){
+        std::string tempv, tempp;
+        fd >> tempv >> tempp;
         
-        if (avg >= 9.0) {
-            bool found = false;
-            for (int k = 0; k < subjects.size(); k++) {
-                if (subjects[k].subject == students[i].subject) {
-                    subjects[k].students.push_back(students[i].name);
-                    subjects[k].count++;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                SubjectInfo newSubject;
-                newSubject.subject = students[i].subject;
-                newSubject.students.push_back(students[i].name);
-                newSubject.count = 1;
-                subjects.push_back(newSubject);
-            }
+        int pz;
+        fd >> pz;
+        double vidurkis=0;
+        for(int j=0; j<pz; j++){
+            int temp;
+            fd >> temp;
+            vidurkis+= temp;
+        }
+        vidurkis/= pz;
+        if(vidurkis >= 9){
+            a[i].pav = tempp;
+        a[i].mokiniai.push_back(tempv);
         }
     }
     
-    if (subjects.empty()) {
-        fout << "Neatitinka vidurkis" << std::endl;
-    } else {
-        std::sort(subjects.begin(), subjects.end(), compareSubjects);
-        for (int i = 0; i < subjects.size(); i++) {
-            fout << subjects[i].subject << " " << subjects[i].count << std::endl;
-            for (int j = 0; j < subjects[i].students.size(); j++) {
-                fout << subjects[i].students[j] << std::endl;
-            }
+    for(int i=0; i<a.size(); i++){
+        for(int j=0; j<a.size()-1; j++){
+            if(a[j].pav > a[j+1].pav)std::swap(a[j], a[j+1]);
         }
     }
-    
+        std::vector<dalykas> b;
+        b.push_back(a[0]);
+        for(int i=1; i<a.size(); i++){
+            if(a[i].pav != a[i-1].pav) b.push_back(a[i]);
+            else{
+                b.back().mokiniai.insert(b.back().mokiniai.end(), a[i].mokiniai.begin(), a[i].mokiniai.end());
+            }
+        }
+
+        for(int i=1; i<b.size(); i++){
+            fr << b[i].pav << ' ' <<b[i].mokiniai.size() << '\n';
+            for(int j=0; j<b[i].mokiniai.size(); j++){
+                fr << b[i].mokiniai[j] <<'\n';
+            }
+            
+        }
+
     return 0;
 }
