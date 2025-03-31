@@ -1,76 +1,78 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <algorithm>
-#include <cmath>
+#include <bits/stdc++.h>
 
-struct Slidininkai{
-    std::string vardas;
-    int val, min, sek;
+struct slidininkas{
+    std::string vardas; //20 simb
+    int sval, smin, ssek;
     int fval, fmin, fsek;
-    int total=0;
+    bool fin = 0;
+    int laikas; //sek
 };
 
-void skaityti(std::vector<Slidininkai> &slid, int &n, std::vector<Slidininkai> &fin, int &m){
-     std::ifstream fd("U2.txt");
-   fd >> n;
- fd.ignore(80, '\n');
-  slid.resize(n);
-  char temp[21];
-  for(int i=0; i<slid.size(); i++){
-          fd.get(temp, 20) ;
-          slid[i].vardas = temp;
-        
-      fd >> slid[i].val >> slid[i].min >> slid[i].sek;
-   
-      fd.ignore(80, '\n');
-  }  
-  
-  
-  
-  fd >> m;
-  fd.ignore(80, '\n');
-  fin.resize(m);
-  for(int i=0; i<m; i++){
-      fd.get(temp,20);
-      fin[i].vardas = temp;
-      fd >> fin[i].val >> fin[i].min >> fin[i].sek;
-      fd.ignore(80, '\n');
-  }
+void skaitymas(int &n, int &m, std::vector<slidininkas> &s){
+    std::ifstream fd("U2.txt");
+    fd >> n;
+    s.resize(n);
+    fd.ignore(80, '\n');
+    for(int i=0; i<n; i++){
+        char temp[21];
+        fd.get(temp, 21);
+        s[i].vardas = temp;
+        fd >> s[i].sval >> s[i].smin >> s[i].ssek;
+        fd.ignore(80, '\n');
+    }
     
+    fd >> m;
+    fd.ignore(80, '\n');
+    for(int i=0; i<n; i++){
+        char temp[21];
+        fd.get(temp, 21);
+        for(int j=0; j<s.size(); j++){
+            if(s[j].vardas == temp){ //nuskaitom finiso laikus jei sutampa ID
+                 fd >> s[j].fval >> s[j].fmin >> s[j].fsek;
+                 s[j].fin =1;
+            }
+        }
+        
+       
+        fd.ignore(80, '\n');
+    }
 }
 
-void rasyti(std::vector<Slidininkai> &slid, int &n, std::vector<Slidininkai> &fin, int &m){
-     std::ofstream fr("rez.txt");
-  for(int i=0; i<n; i++){
-      for(int p=0; p<m; p++){
-          if(slid[i].vardas == fin[p].vardas){
-              fin[p].total = (fin[p].val*3600+fin[p].min*60+fin[p].sek)-(slid[i].val*3600+slid[i].min*60+slid[i].sek);
-          }
-      }
-  }
-  std::sort(fin.begin(), fin.end(), [](Slidininkai &a, Slidininkai &b){
-     if (a.total == b.total) return a.vardas < b.vardas;
-     return a.total < b.total;
-  });
-  
-  for(int i=0; i<m; i++){
-      fr << fin[i].vardas << ' '<< fin[i].total/60 << ' ' << fin[i].total%60 << '\n';
-  }
-    
+void laikas(std::vector<slidininkas> &s){
+    for(int i=0; i<s.size(); i++){ //konvertuojam laika i sekuindes del patogumo
+        s[i].laikas = (s[i].fval * 3600 + s[i].fmin *60 + s[i].fsek)-(s[i].sval * 3600+s[i].smin*60+s[i].ssek);
+    }
+}
+
+void rikiavimas(std::vector<slidininkas> &s){
+    for(int i=0; i<s.size(); i++){
+        for(int j=0; j<s.size()-1; j++){
+            if(s[j].laikas == s[j+1].laikas && s[j].vardas > s[j+1].vardas)std::swap(s[j], s[j+1]); //jei laikas vienodas tada tikrinam varda
+            else if(s[j].laikas > s[j+1].laikas)std::swap(s[j], s[j+1]);
+        }
+    }
+}
+
+void rasymas(std::vector<slidininkas> &s){
+        std::ofstream fr("U2rez.txt");
+     for(int i=0; i<s.size(); i++){ //jei finisavo tada parasome
+        if(s[i].fin)fr <<s[i].vardas << ' '<<s[i].laikas/60 <<' ' <<s[i].laikas%60 <<'\n';
+    }
 }
 
 int main()
 {
-  std::vector<Slidininkai> slid;
-  std::vector<Slidininkai> fin;
-  int n;
-  int m;
-  skaityti(slid, n, fin, m);
- rasyti(slid, n, fin, m);
-  
-  
- 
+    
 
+    
+    int n, m; //pradejusiu ir finisavusiu kiekis 
+    
+    std::vector<slidininkas> s;
+    skaitymas(n, m ,s);
+    laikas(s);
+    rikiavimas(s);
+    rasymas(s);
+   
+    
     return 0;
 }
