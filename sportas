@@ -1,0 +1,95 @@
+#include <bits/stdc++.h>
+
+struct sportininkas{
+    std::string vardas;
+    int nr;
+    int lytis;
+    int sval, smin, ssek;
+    int fval, fmin, fsek;
+    int t1,t2,t3,t4;
+    int trukme;
+    bool fin = 0;
+};
+
+void skaitymas(int &n, int &m, std::vector<sportininkas> &s){
+     std::ifstream fd("U2.txt");
+     fd >> n;
+    fd.ignore(80, '\n');
+    s.resize(n);
+    for(int i=0; i<s.size(); i++){
+        char temp[21];
+        fd.get(temp, 21);
+        s[i].vardas = temp;
+        fd >> s[i].nr;
+        if(s[i].nr >= 200) s[i].lytis = 2;
+        else s[i].lytis = 1;
+        fd >> s[i].sval >> s[i].smin >> s[i].ssek;
+        fd.ignore(80, '\n');
+    }
+    
+    fd >> m;
+    fd.ignore(80, '\n');
+    for(int i=0; i<m; i++){
+        int num;
+        fd >> num;
+        for(int j=0; j<s.size(); j++){
+            if(num == s[j].nr){
+                s[j].fin =1;
+                fd >> s[j].fval >> s[j].fmin >> s[j].fsek;
+                if(s[j].lytis == 2){
+                    int t;
+                    fd >>t; s[j].t1 =t;
+                    fd >>t; s[j].t2 =t;
+                    fd >>t; s[j].t3 =t;
+                    fd >>t; s[j].t4 =t;
+                }
+                else{
+                    int t;
+                    fd >>t; s[j].t1 =t;
+                    fd >>t; s[j].t2 =t;
+                }
+            }
+        }
+        fd.ignore(80, '\n');
+    }
+}
+
+void trukme(std::vector<sportininkas> &s){
+    
+    for(int i=0; i<s.size(); i++){
+        s[i].trukme = (s[i].fval*3600+s[i].fmin*60+s[i].fsek)-(s[i].sval*3600+s[i].smin*60+s[i].ssek); //sekundem
+        if(s[i].lytis == 2) s[i].trukme += (5-s[i].t1 + 5-s[i].t2+ 5-s[i].t3 +5-s[i].t4)*60;
+        else s[i].trukme += (5-s[i].t1 + 5-s[i].t2)*60;
+    }
+}
+
+int main()
+{
+   
+    std::ofstream fr("U2rez.txt");
+    
+    int n, m;
+    std::vector<sportininkas> s;
+    skaitymas(n, m, s);
+    trukme(s);
+    for(int i=0; i<s.size(); i++){
+        for(int j=0; j<s.size()-1; j++){
+            if(s[j].lytis == s[j+1].lytis && s[j].trukme == s[j+1].trukme && s[j].vardas > s[j+1].vardas)std::swap(s[j], s[j+1]);
+            else if(s[j].lytis == s[j+1].lytis && s[j].trukme > s[j+1].trukme)std::swap(s[j], s[j+1]);
+            else if(s[j].lytis > s[j+1].lytis)std::swap(s[j], s[j+1]);
+        }
+    }
+   bool bo = 0;
+    fr << "Merginos\n";
+    for(int i=0; i<s.size(); i++){
+        if(s[i].lytis == 2 && bo==0){
+            bo = 1;
+            fr << "Vaikinai\n";
+        }
+       if(s[i].fin == 1) fr << s[i].nr << ' ' <<s[i].vardas << s[i].trukme/3600 <<' ' <<s[i].trukme%3600/60 <<' ' <<s[i].trukme%60 <<'\n';
+    }
+    
+    
+    
+    return 0;
+}
