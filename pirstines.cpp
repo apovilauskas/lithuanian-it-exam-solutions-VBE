@@ -6,7 +6,7 @@ struct pirstine {
 	int dydis;
 };
 
-void skaityti(int n, std::vector<pirstine> &mot, std::vector<pirstine> &vyr) {
+void skaityti(int &n, std::vector<pirstine> &mot, std::vector<pirstine> &vyr) {
 	std::ifstream fd("U1.txt");
 
 	fd >> n;
@@ -27,7 +27,7 @@ int poros(std::vector<pirstine> zm) {
 
 	int poru=0;
 
-	for(int i=0; i<zm.size(); i++) {
+	for(int i=0; i<zm.size()-1; i++) {
 		if(zm[i].dydis == zm[i+1].dydis && zm[i+1].ranka != zm[i].ranka) {
 			poru ++;
 			i++;
@@ -49,7 +49,7 @@ void rasyti(std::vector<pirstine> &mot, std::vector<pirstine> &vyr) {
 	int pmot=poros(mot), pvyr=poros(vyr);
 	
 	fr << pmot <<'\n';
-	fr << pmot <<'\n';
+	fr << pvyr <<'\n';
 	fr << liko(pmot, mot)<<'\n';
 	fr << liko(pvyr,vyr);
 }
